@@ -13,7 +13,7 @@ def plot_route(map, ori, dest):
     route = nx.shortest_path(sg, origin, destination, weight = 'length')
     ox.plot_graph_route(sg, route, node_size=0)
 
-data = pd.read_parquet('part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet', engine='pyarrow')
+data = pd.read_parquet('dataset/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet', engine='pyarrow')
 convert_time(data)
 data.sort_values(by=['trj_id', 'realtime'], ascending=True)
 
