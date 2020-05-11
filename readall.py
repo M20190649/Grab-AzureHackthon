@@ -20,7 +20,6 @@ def convert_time(data):
 
 def plot(df):
     # sg = ox.graph_from_place('Singapore', network_type ='all')
-    fig, ax = plt.subplots(figsize = (8,6))
     sg = ox.load_graphml('a.graphml')
     ox.plot_graph(sg,show=False)
     #Using list comprehension, specify the “Longitude” column before the “Latitude” column
@@ -28,7 +27,7 @@ def plot(df):
     # CRS: coordinate reference system
     crs = {'init' : 'epsg:4326'}
     geo_df = gpd.GeoDataFrame(df, crs = crs, geometry = geometry)
-    
+    fig, ax = plt.subplots(figsize = (8,6))
     plt.scatter(geo_df.rawlng, geo_df.rawlat, s = 3, c='red', label = "trj_10")
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
@@ -48,6 +47,6 @@ df.drop(columns = ["pingtimestamp"], inplace=True)
 df = df.sort_values(by=['trj_id', 'realtime'], ascending=True)
 
 #try
-if run():
+if run:
     df = df[df["trj_id"] == "10"]
     plot(df)
