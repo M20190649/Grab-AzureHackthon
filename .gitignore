@@ -5,7 +5,7 @@
 
 # datasets
 !dataset/.gitkeep
-dataset/*
+dataset/*.parquet
 data/*
 
 # Thumbnails
