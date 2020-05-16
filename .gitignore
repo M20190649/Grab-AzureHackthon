@@ -9,8 +9,8 @@ dataset/
 data/
 
 # Thumbnails
-._*
 *.csv
+._*
 
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
