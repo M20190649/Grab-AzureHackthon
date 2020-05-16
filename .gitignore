@@ -4,6 +4,7 @@
 .LSOverride
 
 # datasets
+!dataset/.gitkeep
 dataset/*
 data/*
 
