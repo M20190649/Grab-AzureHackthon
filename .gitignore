@@ -10,7 +10,7 @@ data/
 
 # Thumbnails
 ._*
-.csv
+*.csv
 
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
