@@ -5,14 +5,13 @@ import geopandas as gpd
 from shapely.geometry import Point, Polygon
 import osmnx as ox
 import networkx as nx
+from collections import defaultdict
 
-# from collections import defaultdict
-# seen = defaultdict(int)
-# ddd = list(df['trj_id'])
-# for i in ddd:
-#     seen[i] += 1
-
-run = False
+def describe(df):
+    seen = defaultdict(int)
+    trajectories = list(df['trj_id'])
+    for trj in trajectories:
+        seen[trj] += 1
 
 def convert_time(data):
     data['realtime'] = pd.to_datetime(data['pingtimestamp'], unit = 's')
@@ -47,7 +46,6 @@ convert_time(df)
 df.drop(columns = ["pingtimestamp"], inplace=True)
 df = df.sort_values(by=['trj_id', 'realtime'], ascending=True)
 
-#try
-if run():
-    df = df[df["trj_id"] == "10"]
-    plot(df)
+#plot single trajectories
+data1 = df[df["trj_id"] == "10"]
+plot(data1)
