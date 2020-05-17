@@ -19,9 +19,14 @@ def convert_time(data):
 
 def plot(df):
     # sg = ox.graph_from_place('Singapore', network_type ='all')
+<<<<<<< HEAD:main.py
     # sg = ox.load_graphml('a.graphml')
     # ox.plot_graph(sg,show=False)
     
+=======
+    sg = ox.load_graphml('a.graphml')
+    ox.plot_graph(sg,show=False)
+>>>>>>> 1ab9915e8a0f815c92590f0643dd2e5ea2a67291:readall.py
     #Using list comprehension, specify the “Longitude” column before the “Latitude” column
     geometry = [Point(xy) for xy in zip(df["rawlng"], df["rawlat"])]
     # CRS: coordinate reference system
@@ -46,6 +51,13 @@ convert_time(df)
 df.drop(columns = ["pingtimestamp"], inplace=True)
 df.sort_values(by=['trj_id', 'realtime'], ascending=True, inplace=True)
 
+<<<<<<< HEAD:main.py
 #plot single trajectories
 data1 = df[df["trj_id"] == "10"]
 plot(data1)
+=======
+#try
+if run:
+    df = df[df["trj_id"] == "10"]
+    plot(df)
+>>>>>>> 1ab9915e8a0f815c92590f0643dd2e5ea2a67291:readall.py
