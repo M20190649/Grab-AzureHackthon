@@ -8,8 +8,12 @@ from shapely.geometry import Point, Polygon
 from collections import defaultdict
 from geojson import MultiPoint, Feature, FeatureCollection, dump
 
-def describe(df):
-    seen = defaultdict(int)
+df_list = []
+geometryJSON = []
+trj_coordinate = defaultdict(list)
+seen = defaultdict(int)
+
+def summary(df):
     trajectories = list(df['trj_id'])
     for trj in trajectories:
         seen[trj] += 1
@@ -37,7 +41,6 @@ def plot(df):
     plt.title("Singapore")
     plt.show()
 
-df_list = []
 for file in glob.glob("dataset/part-*.parquet"):
     df_ = pd.read_parquet(file, engine = 'pyarrow')
     df_list.append(df_)
@@ -53,19 +56,19 @@ df.sort_values(by=['trj_id', 'realtime'], ascending=True, inplace=True)
 # plot(data1)
 
 # Generate geojson for MapMatching - QGIS
-trajectories = describe(df)
-trj_coord = defaultdict(list)
-coordinates = []
+trajectories = summary(df)
 
 for trj in trajectories.keys():
     data = df[df["trj_id"] == trj]
-    LatLong = list(zip(data["rawlng"], data["rawlat"]))
-    trj_coord[trj] = LatLong
-    for trj, coord in trj_coord.items():
+    trj_coordinate[trj] = list(zip(data["rawlng"], data["rawlat"]))
+
+    for trj, coord in trj_coordinate.items():
         geometry = MultiPoint(coord)
-        coordinates = Feature(geometry = geometry, properties = {"country": "Singapore"})
-        # coordinates.append(Feature(geometry = geometry, properties = {"country": "Singapore"}))
+        # geometryJSON.append(Feature(geometry = geometry, properties = {"country": "Singapore"}))
+        geometryJSON = Feature(geometry = geometry, properties = {"country": "Singapore"})
+        
         with open("geopoints/{}.geojson".format(trj), "w") as file:
-            dump(coordinates, file)
+            dump(geometryJSON, file)
+        print("Trajectory {}'s geojson has been generated".format(trj))
 
 
