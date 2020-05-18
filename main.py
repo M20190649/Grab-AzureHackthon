@@ -58,9 +58,9 @@ df.sort_values(by=['trj_id', 'realtime'], ascending=True, inplace=True)
 # Generate geojson for MapMatching - QGIS
 trajectories = summary(df)
 
-for trj in trajectories.keys():
-    data = df[df["trj_id"] == trj]
-    trj_coordinate[trj] = list(zip(data["rawlng"], data["rawlat"]))
+for trj_id in trajectories.keys():
+    data = df[df["trj_id"] == trj_id]
+    trj_coordinate[trj_id] = list(zip(data["rawlng"], data["rawlat"]))
 
     for trj, coord in trj_coordinate.items():
         geometry = MultiPoint(coord)
