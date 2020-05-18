@@ -3,15 +3,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
-import osmnx as ox
-import networkx as nx
+# import osmnx as ox
+# import networkx as nx
 from collections import defaultdict
+from geojson import MultiPoint, Feature, FeatureCollection, dump
 
 def describe(df):
     seen = defaultdict(int)
     trajectories = list(df['trj_id'])
     for trj in trajectories:
         seen[trj] += 1
+    return seen
 
 def convert_time(data):
     data['realtime'] = pd.to_datetime(data['pingtimestamp'], unit = 's')
@@ -47,5 +49,23 @@ df.drop(columns = ["pingtimestamp"], inplace=True)
 df.sort_values(by=['trj_id', 'realtime'], ascending=True, inplace=True)
 
 #plot single trajectories
-data1 = df[df["trj_id"] == "10"]
-plot(data1)
+# data1 = df[df["trj_id"] == "10"]
+# plot(data1)
+
+# MapMatching - QGIS
+trajectories = describe(df)
+trj_coord = defaultdict(list)
+coordinates = []
+
+for trj in trajectories.keys():
+    data = df[df["trj_id"] == trj]
+    LatLong = list(zip(data["rawlng"], data["rawlat"]))
+    trj_coord[trj] = LatLong
+    for trj, coord in trj_coord.items():
+        geometry = MultiPoint(coord)
+        coordinates = Feature(geometry = geometry, properties = {"country": "Singapore"})
+        # coordinates.append(Feature(geometry = geometry, properties = {"country": "Singapore"}))
+        with open("geopoints/{}.geojson".format(trj), "w") as file:
+            dump(coordinates, file)
+
+
