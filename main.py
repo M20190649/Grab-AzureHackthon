@@ -52,7 +52,7 @@ df.sort_values(by=['trj_id', 'realtime'], ascending=True, inplace=True)
 # data1 = df[df["trj_id"] == "10"]
 # plot(data1)
 
-# MapMatching - QGIS
+# Generate geojson for MapMatching - QGIS
 trajectories = describe(df)
 trj_coord = defaultdict(list)
 coordinates = []

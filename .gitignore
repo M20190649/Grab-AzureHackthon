@@ -7,10 +7,13 @@
 !dataset/.gitkeep
 dataset/*.parquet
 data/*
+geopoints/*
 
-# Thumbnails
+# exception
 *.csv
 ._*
+*.txt
+*.geojson
 
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
