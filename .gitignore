@@ -12,7 +12,6 @@ geopoints/*
 # exception
 *.csv
 ._*
-*.txt
 *.geojson
 
 # Files that might appear in the root of a volume
