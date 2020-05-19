@@ -25,7 +25,8 @@ def convert_time(data):
     return data
 
 def plot(df):
-    # sg = ox.graph_from_place('Singapore', network_type ='all')
+    # map_ = ox.graph_from_place('Singapore', network_type ='drive')
+    # ox.save_graph_shapefile(map_, filename = "Singapore")
     # sg = ox.load_graphml('a.graphml')
     # ox.plot_graph(sg,show=False)
     
