@@ -66,8 +66,8 @@ for trj_id, cnt in trajectories.items():
     
     data = df[df["trj_id"] == trj_id]
     trj_coordinate[trj_id] = list(zip(data["rawlng"], data["rawlat"]))
-    coord = trj_coordinate[trj_id]
-    geometry = MultiPoint(coord)
+    geometry = trj_coordinate.pop(trj_id)
+
     # geometryJSON.append(Feature(geometry = geometry, properties = {"country": "Singapore"}))
     geometryJSON = Feature(geometry = geometry, properties = {"country": "Singapore"})
         
