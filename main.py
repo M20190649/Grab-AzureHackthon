@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
+from os import path
 # import osmnx as ox
 # import networkx as nx
 from collections import defaultdict
@@ -58,17 +59,20 @@ df.sort_values(by=['trj_id', 'realtime'], ascending=True, inplace=True)
 # Generate geojson for MapMatching - QGIS
 trajectories = summary(df)
 
-for trj_id in trajectories.keys():
+for trj_id, cnt in trajectories.items():
+
+    if path.exists("geopoints/{}.geojson".format(trj_id)):
+        continue
+    
     data = df[df["trj_id"] == trj_id]
     trj_coordinate[trj_id] = list(zip(data["rawlng"], data["rawlat"]))
-
-    for trj, coord in trj_coordinate.items():
-        geometry = MultiPoint(coord)
-        # geometryJSON.append(Feature(geometry = geometry, properties = {"country": "Singapore"}))
-        geometryJSON = Feature(geometry = geometry, properties = {"country": "Singapore"})
+    coord = trj_coordinate[trj_id]
+    geometry = MultiPoint(coord)
+    # geometryJSON.append(Feature(geometry = geometry, properties = {"country": "Singapore"}))
+    geometryJSON = Feature(geometry = geometry, properties = {"country": "Singapore"})
         
-        with open("geopoints/{}.geojson".format(trj), "w") as file:
-            dump(geometryJSON, file)
-        print("Trajectory {}'s geojson has been generated".format(trj))
+    with open("geopoints/{}.geojson".format(trj_id), "w") as file:
+        dump(geometryJSON, file)
+    print("Trajectory {}'s geojson has been generated".format(trj_id))
 
 
