@@ -8,11 +8,14 @@ from os import path
 # import networkx as nx
 from collections import defaultdict
 from geojson import MultiPoint, Feature, FeatureCollection, dump
+import requests
 
 df_list = []
 geometryJSON = []
 trj_coordinate = defaultdict(list)
 seen = defaultdict(int)
+
+mapmatch_enable = True
 
 def summary(df):
     trajectories = list(df['trj_id'])
@@ -33,7 +36,7 @@ def plot(df):
     #Using list comprehension, specify the “Longitude” column before the “Latitude” column
     geometry = [Point(xy) for xy in zip(df["rawlng"], df["rawlat"])]
     # CRS: coordinate reference system
-    crs = {'init' : 'epsg:4326'}
+    crs = {'init' : 'EPSG:4326'}
     geo_df = gpd.GeoDataFrame(df, crs = crs, geometry = geometry)
     fig, ax = plt.subplots(figsize = (8,6))
     plt.scatter(geo_df.rawlng, geo_df.rawlat, s = 3, c='red', label = "trj_10")
@@ -42,6 +45,21 @@ def plot(df):
     plt.legend(loc='best')
     plt.title("Singapore")
     plt.show()
+
+def map_matching(geometry):
+    geo_string = []
+
+    for geo in geometry:
+        geo_ = ','.join([str(elem) for elem in geo])
+        geo_string.append(geo_)
+    
+    list_geometry = ';'.join([str(elem) for elem in geo_string])
+    url = 'http://192.168.10.103:5000/match/v1/driving/' + list_geometry + '?steps=false&geometries=geojson&overview=full&annotations=false'
+
+    response = requests.get(url)
+    mapmatched_geopoints = response.json()['matchings'][0]['geometry']
+
+    return mapmatched_geopoints
 
 for file in glob.glob("dataset/part-*.parquet"):
     df_ = pd.read_parquet(file, engine = 'pyarrow')
@@ -67,11 +85,29 @@ for trj_id, cnt in trajectories.items():
     
     data = df[df["trj_id"] == trj_id]
     trj_coordinate[trj_id] = list(zip(data["rawlng"], data["rawlat"]))
+    start, end = data['realtime'].values[0].__str__(), data['realtime'].values[-1].__str__()
     coord = trj_coordinate[trj_id]
     geometry = MultiPoint(coord)
+
+    crs = {
+        "type":"trajectory",
+        "properties":{
+            "name": "EPSG:4326"
+        }
+    }
+    prop = {
+        "country": "Singapore", 
+        "start": start, 
+        "end": end
+    }
+    
+    if mapmatch_enable:
+        geometry = map_matching(geometry['coordinates'])
+    
     # geometryJSON.append(Feature(geometry = geometry, properties = {"country": "Singapore"}))
-    geometryJSON = Feature(geometry = geometry, properties = {"country": "Singapore"})
-        
+    geometryJSON = Feature(geometry = geometry, properties = prop)
+    geometryJSON = FeatureCollection([geometryJSON], crs = crs)
+    
     with open("geopoints/{}.geojson".format(trj_id), "w") as file:
         dump(geometryJSON, file)
     print("Trajectory {}'s geojson has been generated".format(trj_id))
