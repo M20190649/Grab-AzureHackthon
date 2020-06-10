@@ -7,7 +7,7 @@ from os import path
 # import osmnx as ox
 # import networkx as nx
 from collections import defaultdict
-from geojson import MultiPoint, Feature, FeatureCollection, dump
+from geojson import MultiPoint, LineString, Feature, FeatureCollection, dump
 import requests
 
 df_list = []
@@ -48,18 +48,29 @@ def plot(df):
 
 def map_matching(geometry):
     geo_string = []
+    distance = 0
 
     for geo in geometry:
         geo_ = ','.join([str(elem) for elem in geo])
         geo_string.append(geo_)
     
     list_geometry = ';'.join([str(elem) for elem in geo_string])
-    url = 'http://192.168.10.103:5000/match/v1/driving/' + list_geometry + '?steps=false&geometries=geojson&overview=full&annotations=false'
+    url = 'http://ivolab:5000/match/v1/driving/' + list_geometry + \
+        '?steps=false&geometries=geojson&overview=full&annotations=false&tidy=true'
 
     response = requests.get(url)
-    mapmatched_geopoints = response.json()['matchings'][0]['geometry']
+    # mapmatched_geopoints = response.json()['matchings'][0]['geometry']
 
-    return mapmatched_geopoints
+    concat_geo = [response.json()['matchings'][i]['geometry']['coordinates']
+             for i in range(len(response.json()['matchings']))]
+    mapmatched_geopoints = LineString(
+        [y for element in concat_geo for y in element])
+    
+    for i in range(len(response.json()['matchings'])):
+        for j in range(len(response.json()['matchings'][i]['legs'])):
+            distance += response.json()['matchings'][i]['legs'][j]['distance']
+    
+    return mapmatched_geopoints, distance
 
 for file in glob.glob("dataset/part-*.parquet"):
     df_ = pd.read_parquet(file, engine = 'pyarrow')
@@ -80,7 +91,7 @@ trajectories = summary(df)
 
 for trj_id, cnt in trajectories.items():
 
-    if path.exists("geopoints/{}.geojson".format(trj_id)):
+    if path.exists("mapmatched/{}.geojson".format(trj_id)):
         continue
     
     data = df[df["trj_id"] == trj_id]
@@ -88,27 +99,28 @@ for trj_id, cnt in trajectories.items():
     start, end = data['realtime'].values[0].__str__(), data['realtime'].values[-1].__str__()
     coord = trj_coordinate[trj_id]
     geometry = MultiPoint(coord)
+    
+    if mapmatch_enable:
+        geometry, distance = map_matching(geometry['coordinates'])
 
     crs = {
-        "type":"trajectory",
-        "properties":{
+        "type": "trajectory",
+        "properties": {
             "name": "EPSG:4326"
         }
     }
     prop = {
-        "country": "Singapore", 
-        "start": start, 
+        "country": "Singapore",
+        "distance": distance,
+        "start": start,
         "end": end
     }
-    
-    if mapmatch_enable:
-        geometry = map_matching(geometry['coordinates'])
-    
+
     # geometryJSON.append(Feature(geometry = geometry, properties = {"country": "Singapore"}))
     geometryJSON = Feature(geometry = geometry, properties = prop)
     geometryJSON = FeatureCollection([geometryJSON], crs = crs)
     
-    with open("geopoints/{}.geojson".format(trj_id), "w") as file:
+    with open("mapmatched/{}.geojson".format(trj_id), "w") as file:
         dump(geometryJSON, file)
     print("Trajectory {}'s geojson has been generated".format(trj_id))
 
