@@ -55,11 +55,13 @@ def map_matching(geometry):
         geo_string.append(geo_)
     
     list_geometry = ';'.join([str(elem) for elem in geo_string])
-    url = 'http://ivolab:5000/match/v1/driving/' + list_geometry + \
-        '?steps=false&geometries=geojson&overview=full&annotations=false&tidy=true'
+    url = 'http://ivolab:5000/match/v1/driving/' + list_geometry
+    payload = {"steps": "false", "geometries": "geojson",
+               "overview": "full", "annotations": "false", "tidy": "true"}
 
-    response = requests.get(url)
+    response = requests.get(url, params = payload)
     # mapmatched_geopoints = response.json()['matchings'][0]['geometry']
+    print(response.url)
 
     concat_geo = [response.json()['matchings'][i]['geometry']['coordinates']
              for i in range(len(response.json()['matchings']))]
@@ -112,8 +114,8 @@ for trj_id, cnt in trajectories.items():
     prop = {
         "country": "Singapore",
         "distance": distance,
-        "start": start,
-        "end": end
+        "origin_time": start,
+        "destination_time": end
     }
 
     # geometryJSON.append(Feature(geometry = geometry, properties = {"country": "Singapore"}))
