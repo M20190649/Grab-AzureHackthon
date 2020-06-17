@@ -42,6 +42,17 @@ def rainfall_rate(query_time):
                 if y['station_id'] == device_id:
                     rainfall = y['value']
 
+def search_deviceID(getClosestCoordinate):
+    for station in content_station:
+        if getClosestCoordinate == station['location']:
+            return station['device_id']
+
+
+def search_rainfall(device_id):
+    for rd in content_readings:
+        if rd['station_id'] == device_id:
+            return rd['value']
+
 for geojsonfile in glob.glob("mapmatched/*.geojson"):
 
     fn = path.basename(geojsonfile)
@@ -84,12 +95,8 @@ for geojsonfile in glob.glob("mapmatched/*.geojson"):
     # query_time = nearest_time(ts_entries, pivot)
     # query_time = query_time.strftime("%Y-%m-%dT%H:%M:%S+08:00")
 
-    for index in range(len(content_station)):
-        if getClosestCoordinate == content_station[index]['location']:
-            device_id = content_station[index]['device_id']
-            for i in range(len(content_readings)):
-                if content_readings[i]['station_id'] == device_id:
-                    rainfall = content_readings[i]['value']
+    device_id = search_deviceID(getClosestCoordinate)
+    rainfall = search_rainfall(device_id)
 
     geofile['features'][0]['properties']['rainfall'] = rainfall
 
