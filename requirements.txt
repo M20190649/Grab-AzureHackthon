@@ -4,3 +4,5 @@ shapely
 geojson==2.5.0
 geopandas==0.6.1
 osmnx==0.12
+# azureml.datadrift
+azureml.sdk
