@@ -24,7 +24,7 @@ def summary(df):
     return seen
 
 def convert_time(data):
-    data['realtime'] = pd.to_datetime(data['pingtimestamp'], unit = 's')
+    data['realtime'] = pd.to_datetime(data['pingtimestamp'], unit = 's').dt.tz_localize('Singapore')
     return data
 
 def plot(df):
@@ -55,13 +55,12 @@ def map_matching(geometry):
         geo_string.append(geo_)
     
     list_geometry = ';'.join([str(elem) for elem in geo_string])
-    url = 'http://ivolab:5000/match/v1/driving/' + list_geometry
+    url = 'http://192.168.10.103:5000/match/v1/driving/' + list_geometry
     payload = {"steps": "false", "geometries": "geojson",
                "overview": "full", "annotations": "false", "tidy": "true"}
 
     response = requests.get(url, params = payload)
     # mapmatched_geopoints = response.json()['matchings'][0]['geometry']
-    print(response.url)
 
     concat_geo = [response.json()['matchings'][i]['geometry']['coordinates']
              for i in range(len(response.json()['matchings']))]
@@ -98,7 +97,8 @@ for trj_id, cnt in trajectories.items():
     
     data = df[df["trj_id"] == trj_id]
     trj_coordinate[trj_id] = list(zip(data["rawlng"], data["rawlat"]))
-    start, end = data['realtime'].values[0].__str__(), data['realtime'].values[-1].__str__()
+    # start, end = data['realtime'].values[0].__str__(), data['realtime'].values[-1].__str__()
+    start, end = str(data['realtime'].iloc[0]) , str(data['realtime'].iloc[-1])
     coord = trj_coordinate[trj_id]
     geometry = MultiPoint(coord)
     
@@ -113,6 +113,7 @@ for trj_id, cnt in trajectories.items():
     }
     prop = {
         "country": "Singapore",
+        "trj_id": trj_id,
         "distance": distance,
         "origin_time": start,
         "destination_time": end
@@ -125,5 +126,4 @@ for trj_id, cnt in trajectories.items():
     with open("mapmatched/{}.geojson".format(trj_id), "w") as file:
         dump(geometryJSON, file)
     print("Trajectory {}'s geojson has been generated".format(trj_id))
-
 
