@@ -29,7 +29,7 @@ def train_validation_split(root_dir="mapmatched_rainfall", output_dir="output", 
     np.random.shuffle(geofile)
 
     train_folder, validation_folder, test_folder = np.split(
-        np.array(geofile), [int(len(geofile)*train_ratio), int(len(geofile)*(train_ratio+validation_ratio))])
+        np.array(geofile), [int(len(geofile)*train_ratio), int(len(geofile)*(train_ratio+val_ratio))])
 
     train_files = [root_dir + '/' + name for name in train_folder.tolist()]
     validation_files = [root_dir + '/' +
