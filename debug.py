@@ -40,6 +40,15 @@ def rainfall_rate(query_time):
                 if y['station_id'] == device_id:
                     rainfall = y['value']
 
+def search_deviceID(getClosestCoordinate):
+    for station in content_station:
+        if getClosestCoordinate == station['location']:
+            return station['device_id']
+
+def search_rainfall(device_id):
+    for rd in content_readings:
+        if rd['station_id'] == device_id:
+            return rd['value']
 
 with open("mapmatched/12547.geojson", "r") as f:
     file = geojson.load(f)
@@ -48,7 +57,7 @@ ref = {}
 ref['latitude'] = file['features'][0]['geometry']['coordinates'][0][0]
 ref['longitude'] = file['features'][0]['geometry']['coordinates'][0][1]
 pivot = file['features'][0]['properties']['origin_time']
-pivot = pd.to_datetime(datetime.strptime(pivot, "%Y-%m-%dT%H:%M:%S%f000"))
+pivot = pd.to_datetime(datetime.strptime(pivot, "%Y-%m-%d %H:%M:%S+08:00"))
 query_time = datetime.strftime(pivot, "%Y-%m-%dT%H:%M:%S")
 
 # The dataset is ranging from 8 april - 21 april 2019
@@ -75,18 +84,14 @@ getClosestCoordinate = nearest_distance(coordinate, ref)
 # query_time = nearest_time(ts_entries, pivot)
 # query_time = query_time.strftime("%Y-%m-%dT%H:%M:%S+08:00")
 
-for index in range(len(content_station)):
-    if getClosestCoordinate == content_station[index]['location']:
-        device_id = content_station[index]['device_id']
-        print("DID", device_id)
-        for i in range(len(content_readings)):
-            if content_readings[i]['station_id'] == device_id:
-                rainfall = content_readings[i]['value']
+device_id = search_deviceID(getClosestCoordinate)
+rainfall = search_rainfall(device_id)
 
 file['features'][0]['properties']['rainfall'] = rainfall
 
 with open('mapmatched_rainfall/test1.geojson', 'w') as f:
     geojson.dump(file, f)
+
 
 # {
 #     "country": country,
@@ -94,7 +99,7 @@ with open('mapmatched_rainfall/test1.geojson', 'w') as f:
 #     "origin_time": query_time,
 #     "destination_time": ,
 #     "distance": distance in kilometers not meters contrary to OSRM returned distance,
-#     "rain_fall_rate": rainfall
+#     "rainfall": rain fall rate in the origin from the nearest station
 # }
 
 
