@@ -42,13 +42,13 @@ def rainfall_rate(query_time):
                 if y['station_id'] == device_id:
                     rainfall = y['value']
 
-def search_deviceID(getClosestCoordinate):
+def get_deviceID(getClosestCoordinate):
     for station in content_station:
         if getClosestCoordinate == station['location']:
             return station['device_id']
 
 
-def search_rainfall(device_id):
+def get_rainfall(device_id):
     for rd in content_readings:
         if rd['station_id'] == device_id:
             return rd['value']
@@ -72,8 +72,10 @@ for geojsonfile in glob.glob("mapmatched/*.geojson"):
     query_time = datetime.strftime(pivot, "%Y-%m-%dT%H:%M:%S")
 
     # The dataset is ranging from 8 april - 21 april 2019
-    payload = {"date_time": query_time}
     url = 'https://api.data.gov.sg/v1/environment/rainfall'
+    payload = {
+        "date_time": query_time
+    }
     response = requests.get(url, params = payload)
     content = response.json()
     content_station = content['metadata']['stations']
@@ -95,8 +97,8 @@ for geojsonfile in glob.glob("mapmatched/*.geojson"):
     # query_time = nearest_time(ts_entries, pivot)
     # query_time = query_time.strftime("%Y-%m-%dT%H:%M:%S+08:00")
 
-    device_id = search_deviceID(getClosestCoordinate)
-    rainfall = search_rainfall(device_id)
+    device_id = get_deviceID(getClosestCoordinate)
+    rainfall = get_rainfall(device_id)
 
     geofile['features'][0]['properties']['rainfall'] = rainfall
 

@@ -56,8 +56,13 @@ def map_matching(geometry):
     
     list_geometry = ';'.join([str(elem) for elem in geo_string])
     url = 'http://192.168.10.103:5000/match/v1/driving/' + list_geometry
-    payload = {"steps": "false", "geometries": "geojson",
-               "overview": "full", "annotations": "false", "tidy": "true"}
+    payload = {
+        "steps": "false", 
+        "geometries": "geojson",
+        "overview": "full", 
+        "annotations": "false", 
+        "tidy": "true"
+    }
 
     response = requests.get(url, params = payload)
     # mapmatched_geopoints = response.json()['matchings'][0]['geometry']

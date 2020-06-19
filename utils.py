@@ -2,6 +2,8 @@
 import os
 import numpy as np
 import shutil
+import glob
+import geojson
 from math import radians, degrees, sin, cos, asin, acos, sqrt
 
 def haversine(lat1, lat2, long1, long2):
@@ -38,7 +40,7 @@ def train_validation_split(root_dir="mapmatched_rainfall", output_dir="output", 
 
     print("Size of train:", len(train_files))
     print("Size of validation:", len(validation_files))
-    print("Size of test:", len(test_files))
+    print("Size of test:", len(test_files)) 
 
     for geojson in train_files:
         shutil.copy(geojson, output_dir + "/train")
