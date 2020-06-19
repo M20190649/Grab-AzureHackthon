@@ -40,15 +40,18 @@ def rainfall_rate(query_time):
                 if y['station_id'] == device_id:
                     rainfall = y['value']
 
-def search_deviceID(getClosestCoordinate):
+def get_deviceID(getClosestCoordinate):
     for station in content_station:
         if getClosestCoordinate == station['location']:
             return station['device_id']
 
-def search_rainfall(device_id):
+def get_rainfall(device_id):
     for rd in content_readings:
         if rd['station_id'] == device_id:
             return rd['value']
+
+def wait_for_completion():
+    pass
 
 with open("mapmatched/12547.geojson", "r") as f:
     file = geojson.load(f)
@@ -84,8 +87,8 @@ getClosestCoordinate = nearest_distance(coordinate, ref)
 # query_time = nearest_time(ts_entries, pivot)
 # query_time = query_time.strftime("%Y-%m-%dT%H:%M:%S+08:00")
 
-device_id = search_deviceID(getClosestCoordinate)
-rainfall = search_rainfall(device_id)
+device_id = get_deviceID(getClosestCoordinate)
+rainfall = get_rainfall(device_id)
 
 file['features'][0]['properties']['rainfall'] = rainfall
 
