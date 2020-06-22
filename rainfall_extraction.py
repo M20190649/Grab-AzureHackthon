@@ -3,6 +3,7 @@ Source : https://data.gov.sg/dataset/realtime-weather-readings?resource_id=8bd37
 param: date_time to retrieve the latest available data at particular time
      : date to retrieve all of the readings for that day.
 '''
+from dateutil import tz
 import requests
 from datetime import datetime
 import pandas as pd
@@ -33,6 +34,22 @@ def convert_dt_(time_string):
     datetime_object = datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S+08:00")
     timestamp_object = pd.to_datetime(datetime_object)
     return timestamp_object
+
+def convert_utc_to_local(time_string):
+    from_zone = tz.gettz('UTC')
+    to_zone = tz.gettz('Asia/Singapore')
+
+    # utc = datetime.utcnow()
+    utc = datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S')
+
+    # Tell the datetime object that it's in UTC time zone since
+    # datetime objects are 'naive' by default
+    utc = utc.replace(tzinfo=from_zone)
+
+    # Convert time zone
+    local_time = utc.astimezone(to_zone)
+    query_time = datetime.strftime(local_time, "%Y-%m-%dT%H:%M:%S")
+    return query_time
 
 def rainfall_rate(query_time):
     rainfall = 0
@@ -68,8 +85,7 @@ for geojsonfile in glob.glob("mapmatched/*.geojson"):
     ref['latitude'] = geofile['features'][0]['geometry']['coordinates'][0][0]
     ref['longitude'] = geofile['features'][0]['geometry']['coordinates'][0][1]
     pivot = geofile['features'][0]['properties']['origin_time']
-    pivot = pd.to_datetime(datetime.strptime(pivot, "%Y-%m-%d %H:%M:%S+08:00"))
-    query_time = datetime.strftime(pivot, "%Y-%m-%dT%H:%M:%S")
+    query_time = convert_utc_to_local(pivot)
 
     # The dataset is ranging from 8 april - 21 april 2019
     url = 'https://api.data.gov.sg/v1/environment/rainfall'
