@@ -40,7 +40,7 @@ def convert_utc_to_local(time_string):
     to_zone = tz.gettz('Asia/Singapore')
 
     # utc = datetime.utcnow()
-    utc = datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S')
+    utc = datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S+00:00')
 
     # Tell the datetime object that it's in UTC time zone since
     # datetime objects are 'naive' by default
