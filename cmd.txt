@@ -1,0 +1,3 @@
+curl -X POST -H 'Content-Type':'application/json' -d '{"latitude_origin": 1.330076, "longitude_origin": 103.855174, "latitude_destination": 1.349251, "longitude_destination": 103.98509, "timestamp": 1555728612}' http://52.163.247.185/prediction
+
+python .\main.py --epochs 200 --enc_layers 6 --dec_layers 6 --hidden_dim 128 --batch_size 8 --output_dir checkpoints/huber_loss/small --backbone resnet18

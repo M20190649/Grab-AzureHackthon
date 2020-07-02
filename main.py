@@ -24,7 +24,7 @@ def summary(df):
     return seen
 
 def convert_time(data):
-    data['realtime'] = pd.to_datetime(data['pingtimestamp'], unit = 's').dt.tz_localize('Singapore')
+    data['realtime'] = pd.to_datetime(data['pingtimestamp'], unit = 's').dt.tz_localize('UTC')
     return data
 
 def plot(df):
